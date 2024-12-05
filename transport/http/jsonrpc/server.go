@@ -168,6 +168,10 @@ func (s Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if ecm.Version != nil && ecm.Version(ctx) != Version {
+		res.JSONRPC = ecm.Version(ctx)
+	}
+
 	res.Result = resParams
 
 	w.Header().Set("Content-Type", ContentType)

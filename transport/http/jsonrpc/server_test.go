@@ -92,6 +92,7 @@ func TestServerBadDecode(t *testing.T) {
 			Endpoint: endpoint.Nop,
 			Decode:   func(context.Context, json.RawMessage) (interface{}, error) { return struct{}{}, errors.New("oof") },
 			Encode:   nopEncoder,
+			Version:  func(context.Context) string { return "2.0" },
 		},
 	}
 	logger := mockLogger{}
@@ -115,6 +116,7 @@ func TestServerBadEndpoint(t *testing.T) {
 			Endpoint: func(context.Context, interface{}) (interface{}, error) { return struct{}{}, errors.New("oof") },
 			Decode:   nopDecoder,
 			Encode:   nopEncoder,
+			Version:  func(context.Context) string { return "2.0" },
 		},
 	}
 	handler := jsonrpc.NewServer(ecm)
@@ -135,6 +137,7 @@ func TestServerBadEncode(t *testing.T) {
 			Endpoint: endpoint.Nop,
 			Decode:   nopDecoder,
 			Encode:   func(context.Context, interface{}) (json.RawMessage, error) { return []byte{}, errors.New("oof") },
+			Version:  func(context.Context) string { return "2.0" },
 		},
 	}
 	handler := jsonrpc.NewServer(ecm)
@@ -162,6 +165,7 @@ func TestServerErrorEncoder(t *testing.T) {
 			Endpoint: func(context.Context, interface{}) (interface{}, error) { return struct{}{}, errTeapot },
 			Decode:   nopDecoder,
 			Encode:   nopEncoder,
+			Version:  func(context.Context) string { return "2.0" },
 		},
 	}
 	handler := jsonrpc.NewServer(
@@ -236,12 +240,13 @@ func TestServerHappyPath(t *testing.T) {
 }
 
 func TestMultipleServerBeforeCodec(t *testing.T) {
-	var done = make(chan struct{})
+	done := make(chan struct{})
 	ecm := jsonrpc.EndpointCodecMap{
 		"add": jsonrpc.EndpointCodec{
 			Endpoint: endpoint.Nop,
 			Decode:   nopDecoder,
 			Encode:   nopEncoder,
+			Version:  func(context.Context) string { return "2.0" },
 		},
 	}
 	handler := jsonrpc.NewServer(
@@ -272,12 +277,13 @@ func TestMultipleServerBeforeCodec(t *testing.T) {
 }
 
 func TestMultipleServerBefore(t *testing.T) {
-	var done = make(chan struct{})
+	done := make(chan struct{})
 	ecm := jsonrpc.EndpointCodecMap{
 		"add": jsonrpc.EndpointCodec{
 			Endpoint: endpoint.Nop,
 			Decode:   nopDecoder,
 			Encode:   nopEncoder,
+			Version:  func(context.Context) string { return "2.0" },
 		},
 	}
 	handler := jsonrpc.NewServer(
@@ -308,12 +314,13 @@ func TestMultipleServerBefore(t *testing.T) {
 }
 
 func TestMultipleServerAfter(t *testing.T) {
-	var done = make(chan struct{})
+	done := make(chan struct{})
 	ecm := jsonrpc.EndpointCodecMap{
 		"add": jsonrpc.EndpointCodec{
 			Endpoint: endpoint.Nop,
 			Decode:   nopDecoder,
 			Encode:   nopEncoder,
+			Version:  func(context.Context) string { return "2.0" },
 		},
 	}
 	handler := jsonrpc.NewServer(
@@ -344,13 +351,14 @@ func TestMultipleServerAfter(t *testing.T) {
 }
 
 func TestCanFinalize(t *testing.T) {
-	var done = make(chan struct{})
+	done := make(chan struct{})
 	var finalizerCalled bool
 	ecm := jsonrpc.EndpointCodecMap{
 		"add": jsonrpc.EndpointCodec{
 			Endpoint: endpoint.Nop,
 			Decode:   nopDecoder,
 			Encode:   nopEncoder,
+			Version:  func(context.Context) string { return "2.0" },
 		},
 	}
 	handler := jsonrpc.NewServer(
@@ -388,6 +396,7 @@ func testServer(t *testing.T) (step func(), resp <-chan *http.Response) {
 				Endpoint: endpoint,
 				Decode:   nopDecoder,
 				Encode:   nopEncoder,
+				Version:  func(context.Context) string { return "2.0" },
 			},
 		}
 		handler = jsonrpc.NewServer(ecm)

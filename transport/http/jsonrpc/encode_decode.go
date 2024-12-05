@@ -1,11 +1,10 @@
 package jsonrpc
 
 import (
+	"context"
 	"encoding/json"
 
 	"github.com/go-kit/kit/endpoint"
-
-	"context"
 )
 
 // Server-Side Codec
@@ -15,10 +14,14 @@ type EndpointCodec struct {
 	Endpoint endpoint.Endpoint
 	Decode   DecodeRequestFunc
 	Encode   EncodeResponseFunc
+	Version  VersionFunc
 }
 
 // EndpointCodecMap maps the Request.Method to the proper EndpointCodec
 type EndpointCodecMap map[string]EndpointCodec
+
+// VersionFunc returns the JSON RPC version that we're speaking
+type VersionFunc func(context context.Context) string
 
 // DecodeRequestFunc extracts a user-domain request object from raw JSON
 // It's designed to be used in JSON RPC servers, for server-side endpoints.
